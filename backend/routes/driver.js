@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { check } = require("express-validator");
 const isAuth = require('../middlewares/DriverAuthorizer');
-const driverControllers = require("../controllers/driver.controllers");
+const driverControllers = require("../controllers/driver");
 const { rideIdValidation } = require("../models/driverValidation");
 const OauthAuthorizer = require('../middlewares/OauthAuthorizer');
 

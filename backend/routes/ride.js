@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const rideControllers = require("../controllers/ride.controllers");
+const rideControllers = require("../controllers/ride");
 
 //  jwt token for Authentication Middleware 
 const isAuth = require('../middlewares/DriverAuthorizer');

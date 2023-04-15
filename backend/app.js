@@ -6,9 +6,9 @@ const cron = require("node-cron")
 var http = require("http");
 
 const HttpError = require("./Exceptions/http-error");
-const rideRoutes = require("./routes/ride-routes");
-const driverRoutes = require("./routes/driver-routes");
-const driverController = require("./controllers/driver.controllers");
+const rideRoutes = require("./routes/ride");
+const driverRoutes = require("./routes/driver");
+const driverController = require("./controllers/driver");
 
 const port = 8080;
 var server = http.createServer(app);
