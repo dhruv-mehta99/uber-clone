@@ -1,6 +1,4 @@
-import 'package:driver_app/data_provider/auth_provider.dart';
 import 'package:driver_app/data_provider/driver_provider.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DriverService {
@@ -13,6 +11,23 @@ class DriverService {
       prefs.setString('driver_name', driverData["data"]["name"]);
     } catch (ex, stackTrace) {
       print(stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> acceptRide(String rideId) async {
+    try {
+      var resp = await DriverProvider().acceptRide(rideId);
+      return;
+    } catch (ex) {
+      rethrow;
+    }
+  }
+
+  Future<void> rejectRide(String rideId) async {
+    try {
+      await DriverProvider().rejectRide(rideId);
+    } catch (ex) {
       rethrow;
     }
   }

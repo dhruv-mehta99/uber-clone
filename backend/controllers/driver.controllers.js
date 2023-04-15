@@ -6,8 +6,16 @@ const driver = require("../models/driver");
 const ControllerException = require("../Exceptions/ControllerException");
 const DataNotFoundException = require("../Exceptions/DataNotFoundException");
 const DriverService = require("../services/driver");
+const sio = require('../socketio');
 
+// sio.getIO.sockets("ping", (msg) => {
+//     let targetId = msg.targetId;
+//     console.log(targetId, " is active");
+// })
 // To get the whole list of rides of a perticular driver
+const driverHealthCheck = function (data) {
+    console.log("Driver "+data, " is active");
+}
 const getRides = async (req, res, next) => {
     const driverId = req.params.driverId;
 
@@ -217,3 +225,4 @@ exports.acceptRide = acceptRide;
 exports.rejectRide = rejectRide;
 exports.startRide = startRide;
 exports.completeRide = completeRide;
+exports.driverHealthCheck = driverHealthCheck

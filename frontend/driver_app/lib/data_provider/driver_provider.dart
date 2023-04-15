@@ -11,18 +11,61 @@ class DriverProvider {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString("token");
+      var resp = await http.get(
+        Uri.parse('$_driverURL/details'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (resp.statusCode != 200) {
+        throw HttpException(json.decode(resp.body)["message"]);
+      }
       return json.decode(
-        (await http.get(
-          Uri.parse('$_driverURL/details'),
-          headers: {'Authorization': 'Bearer $token'},
-        ))
-            .body,
+        resp.body,
       );
     } on SocketException {
       throw Exception('No Internet connection');
     } catch (error) {
-      print("in catch error");
       print(error);
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> acceptRide(String rideId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString("token");
+      var resp = await http.patch(
+        Uri.parse('$_driverURL/ride/$rideId/accept'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (resp.statusCode != 200) {
+        throw HttpException(json.decode(resp.body)["message"]);
+      }
+      return json.decode(
+        resp.body,
+      );
+    } on SocketException {
+      throw Exception('No Internet connection');
+    }
+  }
+
+  Future<Map<String, dynamic>> rejectRide(String rideId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString("token");
+      var resp = await http.patch(
+        Uri.parse('$_driverURL/ride/$rideId/reject'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (resp.statusCode != 200) {
+        throw HttpException(json.decode(resp.body)["message"]);
+      }
+      return json.decode(
+        resp.body,
+      );
+    } on SocketException {
+      throw Exception('No Internet connection');
+    } catch (error) {
       rethrow;
     }
   }

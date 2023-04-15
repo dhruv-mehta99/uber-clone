@@ -2,11 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
+const cron = require("node-cron")
 var http = require("http");
 
 const HttpError = require("./Exceptions/http-error");
 const rideRoutes = require("./routes/ride-routes");
 const driverRoutes = require("./routes/driver-routes");
+const driverController = require("./controllers/driver.controllers");
 
 const port = 8080;
 var server = http.createServer(app);
@@ -18,7 +20,7 @@ app.use((req, res, next) => {
     // Enabling CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
     next();
 });
@@ -46,10 +48,8 @@ sio.init(server);
 sio.getIO().on("connection", (socket) => {
     console.log("connetetd");
     console.log(socket.id, "has joined");
-    socket.on("message", (msg) => {
-        console.log(msg);
-        let targetId = msg.targetId;
-        if (clients[targetId]) clients[targetId].emit("message", msg);
+    socket.on("ping_back", (msg) => {
+        driverController.driverHealthCheck(msg);
     });
 });
 
@@ -65,3 +65,7 @@ mongoose
     .catch((err) => {
         console.log(err);
     })
+cron.schedule("*/1 * * * *", () => {
+    console.log("running cron")
+    sio.getIO().emit("ping", "hey there");
+})
