@@ -6,22 +6,6 @@ const driverControllers = require("../controllers/driver.controllers");
 const { rideIdValidation } = require("../models/driverValidation");
 const OauthAuthorizer = require('../middlewares/OauthAuthorizer');
 
-// // driver Signup 
-// router.post("/signup",
-//     [
-//         check("name").not().isEmpty(),
-//         check("email").isEmail(),
-//         check("password").not().isEmpty()
-//     ], driverControllers.signup);
-
-// // driver login
-// router.post("/login",
-//     [
-//         check("email").isEmail(),
-//         check("password").not().isEmpty(),
-//         check('accessKey').not().isEmpty()
-//     ]
-//     , driverControllers.login);
 
 // driver google oauth login
 router.post("/oauth/google/authorize",

@@ -65,6 +65,8 @@ mongoose
     .catch((err) => {
         console.log(err);
     })
+
+//cron job to ping drivers every 5 min
 cron.schedule("*/1 * * * *", () => {
     console.log("running cron")
     sio.getIO().emit("ping", "hey there");

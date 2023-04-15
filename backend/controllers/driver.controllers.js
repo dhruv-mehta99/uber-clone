@@ -6,80 +6,9 @@ const driver = require("../models/driver");
 const ControllerException = require("../Exceptions/ControllerException");
 const DataNotFoundException = require("../Exceptions/DataNotFoundException");
 const DriverService = require("../services/driver");
-const sio = require('../socketio');
 
-// sio.getIO.sockets("ping", (msg) => {
-//     let targetId = msg.targetId;
-//     console.log(targetId, " is active");
-// })
-// To get the whole list of rides of a perticular driver
 const driverHealthCheck = function (data) {
     console.log("Driver "+data, " is active");
-}
-const getRides = async (req, res, next) => {
-    const driverId = req.params.driverId;
-
-    let driverFound;
-    try {
-        driverFound = await driver.findById(driverId).populate('rideIds');
-    } catch (err) {
-        console.log(err);
-        return next(new HttpError('Something went wrong', 500));
-    }
-    if (!driverFound) {
-        return next(new HttpError('driver not found', 500));
-    }
-
-    var rides = [];
-
-    if (driverFound.rides.length > 0) {
-        for (let index = 0; index < driverFound.rideIds.length; index++) {
-            if (driverFound.rides[index].consulted) {
-                if (driverFound.rides[index].active) {
-                    let rideReports;
-                    try {
-                        rideReports = await ride.findById(driverFound.rideIds[index].id).populate('reports').populate('prescribedMedicines');
-                    } catch (err) {
-                        console.log(err);
-                        return next(new HttpError('Something went wrong', 500));
-                    }
-                    rides.push({
-                        id: rideReports.id,
-                        name: rideReports.name,
-                        email: rideReports.email,
-                        phoneNo: rideReports.phoneNo,
-                        address: rideReports.address,
-                        age: rideReports.age,
-                        active: true,
-                        currentMedicines: rideReports.currentMedicines,
-                        symptoms: rideReports.symptoms,
-                        reports: rideReports.reports,
-                        prescribedMedicines: rideReports.prescribedMedicines,
-                        startDate: driverFound.rides[index].startDate
-                    });
-                }
-                else {
-                    rides.push({
-                        id: driverFound.rideIds[index].id,
-                        name: driverFound.rideIds[index].name,
-                        email: driverFound.rideIds[index].email,
-                        phoneNo: driverFound.rideIds[index].phoneNo,
-                        address: driverFound.rideIds[index].address,
-                        active: false,
-                        startDate: driverFound.rides[index].startDate
-                    });
-                }
-                if (index === driverFound.rideIds.length - 1) {
-                    res.json({ rides });
-                }
-            }
-            else {
-                res.json({ rides });
-            }
-        }
-    } else {
-        res.json({ rides });
-    }
 }
 
 // Used to assign a driver to the ride when driver accepts the request
@@ -175,7 +104,8 @@ const completeRide = async (req, res, next) => {
         next(error);
     }
 }
-// To signup a driver
+
+// To signup/login a driver
 const authorize = async (req, res, next) => {
 
     const error = validationResult(req);
@@ -184,15 +114,15 @@ const authorize = async (req, res, next) => {
         return next(new HttpError('Invalid input.Please Check!', 422));
     }
 
-    let driver;
+    let driverFound;
     let email = req.authorizer_context.email
     try {
-        driver = await DriverService.getDriverByEmailId(email);
+        driverFound = await DriverService.getDriverByEmailId(email);
     } catch (err) {
         if (err instanceof DataNotFoundException) {
             // create new driver
 
-            driver = new driver({
+            driverFound = new driver({
                 name: req.authorizer_context.name,
                 email: req.authorizer_context.email,
                 accepted_rides: [],
@@ -201,7 +131,7 @@ const authorize = async (req, res, next) => {
                 ongoing_ride: null
             });
             try {
-                driver.save()
+                driverFound.save()
             } catch (err) {
                 console.log(err)
                 next(new HttpError("failed to create new driver", 500))
@@ -211,7 +141,7 @@ const authorize = async (req, res, next) => {
         return next(new ControllerException('Failed to check driver recored', 500));
     }
 
-    let token = await DriverService.authorize(req.query.request_token, driver)
+    let token = await DriverService.authorize(req.query.request_token, driverFound)
 
     res.json({ data: { access_token: token } });
 }
@@ -220,7 +150,6 @@ const authorize = async (req, res, next) => {
 
 exports.getDriverDetails = getDriverDetails;
 exports.authorize = authorize;
-exports.getrides = getRides;
 exports.acceptRide = acceptRide;
 exports.rejectRide = rejectRide;
 exports.startRide = startRide;

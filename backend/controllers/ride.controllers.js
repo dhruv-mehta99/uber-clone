@@ -7,26 +7,6 @@ const sio = require('../socketio');
 //////////////////////////////////////////////////////////// GET /////////////////////////////////////////////////////////////////////////
 
 
-// To get the Information and data of a ride 
-const getRideData = async (req, res, next) => {
-
-    const rideId = req.params.rideId;
-
-    let rideFound;
-    try {
-        rideFound = await ride.findById(rideId).populate('reports').populate("prescribedMedicines");
-    } catch (err) {
-        console.log(err);
-        return next(new HttpError('Something went wrong.', 500));
-    }
-    if (!rideFound) {
-        return next(new HttpError('ride not found', 500));
-    }
-
-    res.json({ ride: rideFound.toObject({ getters: true }) });
-}
-
-
 // To post a new ride
 const postNewRide = async (req, res, next) => {
 
@@ -68,4 +48,3 @@ const postNewRide = async (req, res, next) => {
 }
 
 exports.postNewRide = postNewRide;
-exports.getRideData = getRideData;
