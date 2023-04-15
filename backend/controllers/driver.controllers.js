@@ -8,7 +8,7 @@ const DataNotFoundException = require("../Exceptions/DataNotFoundException");
 const DriverService = require("../services/driver");
 
 const driverHealthCheck = function (data) {
-    console.log("Driver "+data, " is active");
+    console.log("Driver " + data, " is active");
 }
 
 // Used to assign a driver to the ride when driver accepts the request
@@ -136,9 +136,11 @@ const authorize = async (req, res, next) => {
                 console.log(err)
                 next(new HttpError("failed to create new driver", 500))
             }
+        } else {
+            console.log(err);
+            return next(new ControllerException('Failed to check driver recored', 500));
         }
-        console.log(err);
-        return next(new ControllerException('Failed to check driver recored', 500));
+
     }
 
     let token = await DriverService.authorize(req.query.request_token, driverFound)
